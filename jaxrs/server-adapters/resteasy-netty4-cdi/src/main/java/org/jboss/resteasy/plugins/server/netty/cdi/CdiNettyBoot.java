@@ -1,5 +1,7 @@
 package org.jboss.resteasy.plugins.server.netty.cdi;
 
+import org.jboss.weld.environment.se.Weld;
+
 import javax.enterprise.inject.Vetoed;
 
 /**
@@ -8,6 +10,8 @@ import javax.enterprise.inject.Vetoed;
 @Vetoed
 public class CdiNettyBoot {
     public static void main(String[] args) {
+        Weld weld = new Weld();
+        weld.initialize();
         Runnable runnable = new NettyServerRunnable();
         Thread runner = new Thread(runnable);
         runner.setDaemon(false);

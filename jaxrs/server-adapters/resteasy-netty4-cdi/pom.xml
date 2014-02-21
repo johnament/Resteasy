@@ -34,9 +34,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jboss.weld</groupId>
-            <artifactId>weld-api</artifactId>
-            <version>${dep.weld.api.version}</version>
+            <groupId>org.jboss.weld.se</groupId>
+            <artifactId>weld-se</artifactId>
+            <version>${dep.weld.se.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
