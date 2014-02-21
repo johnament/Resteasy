@@ -16,6 +16,7 @@ import org.jboss.resteasy.spi.metadata.ResourceLocator;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
@@ -200,23 +201,16 @@ public class CdiInjectorFactory implements InjectorFactory
 
    public static BeanManager lookupBeanManagerCDIUtil()
    {
-       BeanManager bm = null;
-       try {
-           Class<?> cdiClass = Class.forName("javax.enterprise.inject.spi.CDI");
-           Object cdiObj = cdiClass.getMethod("current").invoke(null);
-           if(cdiObj != null) {
-               bm = (BeanManager)cdiClass.getMethod("getBeanManager").invoke(cdiObj);
-           }
-       } catch (ClassNotFoundException e) {
-           log.debug("Not able to access CDI Object, class not found.",e);
-       } catch (InvocationTargetException e) {
-           log.debug("Not able to access CDI Object.",e);
-       } catch (NoSuchMethodException e) {
-           log.debug("Not able to access CDI Object.",e);
-       } catch (IllegalAccessException e) {
-           log.debug("Not able to access CDI Object.",e);
+       try
+       {
+           BeanManager beanManager = CDI.current().getBeanManager();
+           return beanManager;
        }
-       return bm;
+       catch (final Exception e)
+       {
+           log.debug("CDI.current Util did not resolve a bean manager");
+           return null;
+       }
    }
 
    /**

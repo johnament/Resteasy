@@ -44,6 +44,7 @@ public class NettyJaxrsServer implements EmbeddedJaxrsServer
    private SSLContext sslContext;
    private int maxRequestSize = 1024 * 1024 * 10;
    private int backlog = 128;
+   private RequestDispatcher requestDispatcher;
 
    public void setSSLContext(SSLContext sslContext)
    {
@@ -72,7 +73,28 @@ public class NettyJaxrsServer implements EmbeddedJaxrsServer
        this.executorThreadCount = executorThreadCount;
    }
 
-   /**
+    /**
+     * Gets the current request dispatcher.  If not set, creates a default one.
+     *
+     * @return
+     */
+    public RequestDispatcher getRequestDispatcher() {
+        if (this.requestDispatcher == null) {
+            this.requestDispatcher = new RequestDispatcher((SynchronousDispatcher)deployment.getDispatcher(), deployment.getProviderFactory(), domain);
+        }
+        return this.requestDispatcher;
+    }
+
+    /**
+     * Sets the request dispatcher.
+     *
+     * @param requestDispatcher
+     */
+    public void setRequestDispatcher(RequestDispatcher requestDispatcher) {
+        this.requestDispatcher = requestDispatcher;
+    }
+
+    /**
     * Set the max. request size in bytes. If this size is exceed we will send a "413 Request Entity Too Large" to the client.
     *
     * @param maxRequestSize the max request size. This is 10mb by default.
@@ -128,7 +150,7 @@ public class NettyJaxrsServer implements EmbeddedJaxrsServer
       eventLoopGroup = new NioEventLoopGroup(ioWorkerCount);
       eventExecutor = new NioEventLoopGroup(executorThreadCount);
       deployment.start();
-      final RequestDispatcher dispatcher = new RequestDispatcher((SynchronousDispatcher)deployment.getDispatcher(), deployment.getProviderFactory(), domain);
+      final RequestDispatcher dispatcher = this.getRequestDispatcher();
        // Configure the server.
        if (sslContext == null) {
            bootstrap.group(eventLoopGroup)
