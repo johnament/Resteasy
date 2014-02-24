@@ -4,12 +4,13 @@ import org.jboss.resteasy.core.SynchronousDispatcher;
 import org.jboss.resteasy.plugins.server.netty.NettyJaxrsServer;
 import org.jboss.resteasy.plugins.server.netty.RequestDispatcher;
 
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Vetoed;
 
 /**
  * A simple extension of the NettyJaxrsServer that uses a CDI enabled request dispatcher.  Each
  */
-@Vetoed
+@Dependent
 public class CdiNettyJaxrsServer extends NettyJaxrsServer {
     @Override
     public RequestDispatcher createRequestDispatcher() {
