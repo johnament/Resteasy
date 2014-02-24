@@ -74,25 +74,15 @@ public class NettyJaxrsServer implements EmbeddedJaxrsServer
    }
 
     /**
-     * Gets the current request dispatcher.  If not set, creates a default one.
+     * Creates a
      *
      * @return
      */
-    public RequestDispatcher getRequestDispatcher() {
-        if (this.requestDispatcher == null) {
-            this.requestDispatcher = new RequestDispatcher((SynchronousDispatcher)deployment.getDispatcher(), deployment.getProviderFactory(), domain);
-        }
-        return this.requestDispatcher;
+    protected RequestDispatcher createRequestDispatcher() {
+        return new RequestDispatcher((SynchronousDispatcher)deployment.getDispatcher(),
+                deployment.getProviderFactory(), domain);
     }
 
-    /**
-     * Sets the request dispatcher.
-     *
-     * @param requestDispatcher
-     */
-    public void setRequestDispatcher(RequestDispatcher requestDispatcher) {
-        this.requestDispatcher = requestDispatcher;
-    }
 
     /**
     * Set the max. request size in bytes. If this size is exceed we will send a "413 Request Entity Too Large" to the client.
@@ -150,7 +140,7 @@ public class NettyJaxrsServer implements EmbeddedJaxrsServer
       eventLoopGroup = new NioEventLoopGroup(ioWorkerCount);
       eventExecutor = new NioEventLoopGroup(executorThreadCount);
       deployment.start();
-      final RequestDispatcher dispatcher = this.getRequestDispatcher();
+      final RequestDispatcher dispatcher = this.createRequestDispatcher();
        // Configure the server.
        if (sslContext == null) {
            bootstrap.group(eventLoopGroup)
@@ -161,7 +151,8 @@ public class NettyJaxrsServer implements EmbeddedJaxrsServer
                            ch.pipeline().addLast(new HttpRequestDecoder());
                            ch.pipeline().addLast(new HttpObjectAggregator(maxRequestSize));
                            ch.pipeline().addLast(new HttpResponseEncoder());
-                           ch.pipeline().addLast(new RestEasyHttpRequestDecoder(dispatcher.getDispatcher(), root, RestEasyHttpRequestDecoder.Protocol.HTTP));
+                           ch.pipeline().addLast(new RestEasyHttpRequestDecoder(dispatcher.getDispatcher(), root,
+                                   RestEasyHttpRequestDecoder.Protocol.HTTP));
                            ch.pipeline().addLast(new RestEasyHttpResponseEncoder(dispatcher));
                            ch.pipeline().addLast(eventExecutor, new RequestHandler(dispatcher));
                        }

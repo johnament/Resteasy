@@ -149,24 +149,11 @@ public class CdiInjectorFactory implements InjectorFactory
       }
 
       // Look for BeanManager in ServletContext
-      ServletContext servletContext = ResteasyProviderFactory.getContextData(ServletContext.class);
-      // null check for RESTEASY-1009
-      if (servletContext != null)
+      beanManager = lookupManagerViaServletContext();
+      if(beanManager != null)
       {
-          beanManager = (BeanManager) servletContext.getAttribute(BEAN_MANAGER_ATTRIBUTE_PREFIX + BeanManager.class.getName());
-          if (beanManager != null)
-          {
-             log.debug("Found BeanManager in ServletContext");
-             return beanManager;
-          }
-
-          // Look for BeanManager in ServletContext (the old attribute name for backwards compatibility)
-          beanManager = (BeanManager) servletContext.getAttribute(BeanManager.class.getName());
-          if (beanManager != null)
-          {
-             log.debug("Found BeanManager in ServletContext");
-             return beanManager;
-          }
+          log.debug("Found BeanManager via ServletContext");
+          return beanManager;
       }
 
        beanManager = lookupBeanManagerCDIUtil();
@@ -198,6 +185,42 @@ public class CdiInjectorFactory implements InjectorFactory
          return null;
       }
    }
+
+    private static BeanManager lookupManagerViaServletContext()
+    {
+        BeanManager beanManager = null;
+        try
+        {
+            ServletContext servletContext = ResteasyProviderFactory.getContextData(ServletContext.class);
+            // null check for RESTEASY-1009
+            if (servletContext != null)
+            {
+                beanManager = (BeanManager) servletContext.getAttribute(BEAN_MANAGER_ATTRIBUTE_PREFIX + BeanManager.class.getName());
+                if (beanManager != null)
+                {
+                    log.debug("Found BeanManager in ServletContext");
+                    return beanManager;
+                }
+
+                // Look for BeanManager in ServletContext (the old attribute name for backwards compatibility)
+                beanManager = (BeanManager) servletContext.getAttribute(BeanManager.class.getName());
+                if (beanManager != null)
+                {
+                    log.debug("Found BeanManager in ServletContext");
+                    return beanManager;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            log.debug("Problem loading BeanManager via ServletContext",e);
+        }
+        catch (NoClassDefFoundError e)
+        {
+            log.debug("ServletContext not available.",e);
+        }
+        return beanManager;
+    }
 
    public static BeanManager lookupBeanManagerCDIUtil()
    {

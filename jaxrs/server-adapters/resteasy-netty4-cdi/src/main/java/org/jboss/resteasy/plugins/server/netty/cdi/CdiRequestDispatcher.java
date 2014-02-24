@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by John.Ament on 2/20/14.
+ * A RequestDispatcher that initiates a Weld RequestContext at the start of processing, and releases it at the end.
  */
 @Vetoed
 public class CdiRequestDispatcher extends RequestDispatcher {
